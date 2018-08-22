@@ -5,7 +5,7 @@ import { parseString } from 'xml2js';
 export function selectBook(id) {
   return dispatch => {
     let book;
-    axios.get(`https://www.goodreads.com/book/show/${id}.xml?key=uLcNEgljUTXWGSw7eahPw`)
+    axios.get(`${'https://cors-anywhere.herokuapp.com/'}https://www.goodreads.com/book/show/${id}.xml?key=uLcNEgljUTXWGSw7eahPw`)
       .then(({data}) => {
         parseString(data, function(err, res) {
           dispatch({ type: 'SELECT_BOOK', payload: res.GoodreadsResponse.book[0] });
@@ -30,7 +30,7 @@ export function fetchBooks() {
           books.map((book) => {
             let newBookTitle = book.title.replace(/#|_/g, '');
             return axios.get(
-              `https://www.goodreads.com/search.xml?key=uLcNEgljUTXWGSw7eahPw&q=${newBookTitle}`
+              `${'https://cors-anywhere.herokuapp.com/'}https://www.goodreads.com/search.xml?key=uLcNEgljUTXWGSw7eahPw&q=${newBookTitle}`
             );
           })
         ).then(res => {
