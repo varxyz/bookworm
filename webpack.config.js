@@ -31,6 +31,7 @@ module.exports = {
     filename: 'bundle.js'
   },
   mode: prod,
+  devtool: 'eval',
   module: {
     rules: [
       {
@@ -78,13 +79,23 @@ module.exports = {
       disable: !isProd,
       allChunks: true
     }),
-    new webpack.NamedModulesPlugin(),
+    // new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    new OfflinePlugin(),
+    // new OfflinePlugin(),
   ],
   devServer: {
+    historyApiFallback: true,
+    host: '0.0.0.0',
+    port: 8080,
+    // disableHostCheck: true,
     hot: true,
     contentBase: path.join(__dirname, 'dist'),
-    compress: true
+    compress: true,
+    noInfo: true,
+    open: true,
+    overlay: {
+      warnings: true,
+      errors: true
+    },
   }
 };

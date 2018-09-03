@@ -7,10 +7,10 @@ import { createStore, applyMiddleware } from 'redux';
 import { AppContainer } from 'react-hot-loader';
 import App from './components/app';
 import reducers from './reducers';
-
+import store from './store';
 // const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);
-install();
-const store = createStore(
+// install();
+const store1 = createStore(
   reducers,
   applyMiddleware(thunk)
 );

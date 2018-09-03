@@ -1,11 +1,19 @@
 import axios from 'axios';
 const FETCH_BOOKS = 'FETCH_BOOKS';
 import { parseString } from 'xml2js';
+const corsLink = 'https://cors-anywhere.herokuapp.com/'
+
+export function toggleLoading(bool) {
+  return {
+    type: 'TOGGLE_LOADING',
+    payload: bool
+  }
+}
 
 export function selectBook(id) {
   return dispatch => {
     let book;
-    axios.get(`${'https://cors-anywhere.herokuapp.com/'}https://www.goodreads.com/book/show/${id}.xml?key=uLcNEgljUTXWGSw7eahPw`)
+    axios.get(`${corsLink}https://www.goodreads.com/book/show/${id}.xml?key=uLcNEgljUTXWGSw7eahPw`)
       .then(({data}) => {
         parseString(data, function(err, res) {
           dispatch({ type: 'SELECT_BOOK', payload: res.GoodreadsResponse.book[0] });
@@ -14,11 +22,20 @@ export function selectBook(id) {
   }
 }
 
-export function fetchBooks() {
+export function addToWatchList(book) {
+  return {
+    type: 'ADD_TO_WATCHLIST',
+    payload: book
+  }
+}
+
+export function fetchBooks(searchResultBooks) {
   return dispatch => {
     let books;
     let booki = [];
-    axios
+    return searchResultBooks
+    ? dispatch({ type: 'FETCH_BOOKS', payload: searchResultBooks })
+    :  axios
       .get(
         'https://api.nytimes.com/svc/books/v3/lists/best-sellers/history.json?api-key=9b5181a0d74c4d5b9b52ecc26ccb38f1'
       )
@@ -30,7 +47,7 @@ export function fetchBooks() {
           books.map((book) => {
             let newBookTitle = book.title.replace(/#|_/g, '');
             return axios.get(
-              `${'https://cors-anywhere.herokuapp.com/'}https://www.goodreads.com/search.xml?key=uLcNEgljUTXWGSw7eahPw&q=${newBookTitle}`
+              `${corsLink}https://www.goodreads.com/search.xml?key=uLcNEgljUTXWGSw7eahPw&q=${newBookTitle}`
             );
           })
         ).then(res => {
