@@ -44,7 +44,6 @@ class MainPage extends Component {
   }
 
   render() {
-
     return this.props.books[0] && !this.props.loading  ? (
       <Grid divided>
         <Grid.Row columns={2}>
