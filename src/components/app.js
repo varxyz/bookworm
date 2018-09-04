@@ -12,7 +12,7 @@ import '../style/style.css';
 class App extends Component {
   render() {
     return (
-      <BrowserRouter>
+      <BrowserRouter basename="/bookworm">
         <Wrapper>
           <Header/>
           <Switch>
