@@ -19,8 +19,6 @@ class MainPage extends Component {
     super(props);
   }
   componentDidMount() {
-    // console.log(this.props.firebase.auth())
-    // this.props.firebase.login({email: 'test@gmail.com', password:'123456'})
     this.props.fetchBooks();
     // axios.get('http://localhost:5000/api/books').then(res=>{console.log(res); return this.setState({books: res.data.backendBooks})})
   }
@@ -46,7 +44,6 @@ class MainPage extends Component {
   }
 
   render() {
-    // console.log('cbook', this.state);
     return this.props.books[0] ? (
       <Grid divided>
         <Grid.Row columns={2}>
