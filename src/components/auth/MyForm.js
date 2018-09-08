@@ -1,8 +1,13 @@
 import React from 'react';
 import { Formik } from 'formik';
 import { Card, Button, Form } from 'semantic-ui-react';
+import { firebaseConnect } from 'react-redux-firebase';
+import { compose } from 'redux'
+import { connect } from 'react-redux'
 
-const Basic = () => (
+const Basic = (props) => {
+  const {firebase, auth} = props;
+  return(
   <Card centered>
     <Card.Content>
       <Card.Header textAlign="center">Log In</Card.Header>
@@ -28,9 +33,10 @@ const Basic = () => (
         values,
         { setSubmitting, setErrors /* setValues and other goodies */ }
       ) => {
-        LoginToMyApp(values).then(
+        firebase.login(values).then(
           user => {
             setSubmitting(false);
+            {/* history.push('/') */}
             // do whatevs...
             // props.updateUser(user)
           },
@@ -64,11 +70,10 @@ const Basic = () => (
               />
             </Form.Field>
             <Form.Field>
-            <label>Password</label>
+              <label>Password</label>
 
               <Form.Input
-                error={touched.password &&
-                errors.password}
+                error={touched.password && errors.password}
                 type="password"
                 name="password"
                 onChange={handleChange}
@@ -84,6 +89,9 @@ const Basic = () => (
       )}
     />
   </Card>
-);
+)};
 
-export default Basic;
+export default compose(
+  firebaseConnect(), // withFirebase can also be used
+  connect(({ firebase: { auth } }) => ({ auth }))
+)(Basic)

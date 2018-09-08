@@ -19,6 +19,8 @@ class MainPage extends Component {
     super(props);
   }
   componentDidMount() {
+    // console.log(this.props.firebase.auth())
+    // this.props.firebase.login({email: 'test@gmail.com', password:'123456'})
     this.props.fetchBooks();
     // axios.get('http://localhost:5000/api/books').then(res=>{console.log(res); return this.setState({books: res.data.backendBooks})})
   }
@@ -44,7 +46,8 @@ class MainPage extends Component {
   }
 
   render() {
-    return this.props.books[0] && !this.props.loading  ? (
+    // console.log('cbook', this.state);
+    return this.props.books[0] ? (
       <Grid divided>
         <Grid.Row columns={2}>
           <Grid.Column>
@@ -58,8 +61,7 @@ class MainPage extends Component {
               />
             ) : this.props.currentBook &&
             this.state.cBook &&
-            this.props.currentBook.title[0] ===
-              this.state.cBook.best_book[0].title[0] ? (
+            this.props.currentBook.title[0]  ? (
               <BookDetails
                 book={this.props.currentBook}
                 addWatchList={this.addBookToWatchList}
@@ -80,7 +82,7 @@ function mapStateToProps(state) {
   return {
     books: state.books,
     currentBook: state.currentBook,
-    loading: state.loading,
+    loading: state.loading
   };
 }
 
@@ -92,6 +94,6 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default compose(
-  firestoreConnect([{ collection: 'watchlist' }, {collection: 'books'}]),
+  firestoreConnect([{ collection: 'watchlist' }, { collection: 'books' }]),
   connect(mapStateToProps, mapDispatchToProps)
 )(MainPage);

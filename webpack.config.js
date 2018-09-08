@@ -27,7 +27,8 @@ const cssConfig = isProd ? cssProd : cssDev;
 module.exports = {
   entry: './src/index.js',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'bookworm/dist'),
+    publicPath: '/bookworm/',
     filename: 'bundle.js'
   },
   mode: prod,
@@ -72,7 +73,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'Home',
-      template: 'src/index.html'
+      template: 'bookworm/index.html'
     }),
     new ExtractTextPlugin({
       filename: 'styles/[name].css',
@@ -89,13 +90,14 @@ module.exports = {
     port: 8080,
     // disableHostCheck: true,
     hot: true,
-    contentBase: path.join(__dirname, 'dist'),
+    contentBase: path.join(__dirname, '/bookworm/dist'),
     compress: true,
-    noInfo: true,
+    // noInfo: true,
     open: true,
     overlay: {
       warnings: true,
       errors: true
     },
+    openPage: 'bookworm/'
   }
 };

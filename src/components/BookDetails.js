@@ -8,16 +8,23 @@ class BookDetails extends Component {
   state = { added: false };
 
   checkIfAddedInWatchlist(bookToBeChecked) {
-    return this.props.watchlistFstore.find(entry => {
-      return entry && entry.gid === bookToBeChecked.id[0];
-    });
+    // console.log(this.props)
+    if(this.props.auth.uid && this.props.watchlistFstore) {
+
+      return this.props.watchlistFstore.find(entry => {
+        return entry && entry.gid === bookToBeChecked.id[0];
+      });
+    } return null
   }
   checkIfMarkedAsRead(bookToBeChecked) {
+    if(this.props.auth.uid && this.props.readlist) {
+
     return this.props.readlist.find(entry => {
       if (entry && entry.gid === bookToBeChecked.id[0]) {
         return entry.added || false;
       }
     });
+  } return null
   }
 
   addBooktoWatchlist(book) {
@@ -52,23 +59,24 @@ class BookDetails extends Component {
   }
 
   renderWatchlistButton(theBook) {
+    // console.log(this.props.auth.uid)
     return this.checkIfAddedInWatchlist(theBook) ? (
-      <Button data-tooltip="Remove this book from watchlist" onClick={() => this.deleteBookFromWatchlist(theBook)} icon>
+      <Button disabled={this.props.auth.uid ? false : true} data-tooltip="Remove this book from watchlist" onClick={() => this.deleteBookFromWatchlist(theBook)} icon>
         <Icon name="bookmark" /> Remove
       </Button>
     ) : (
-      <Button data-tooltip="Add this book to watchlist" onClick={() => this.addBooktoWatchlist(theBook)} icon>
+      <Button disabled={this.props.auth.uid ? false : true} data-tooltip="Add this book to watchlist" onClick={() => this.addBooktoWatchlist(theBook)} icon>
         <Icon name="bookmark outline" /> Watchlist
       </Button>
     );
   }
   renderReadButton(theBook) {
     return this.checkIfMarkedAsRead(theBook) ? (
-      <Button data-tooltip="You alredy read this book" data-position="bottom center" onClick={() => this.uncheckRead(theBook)} active icon>
+      <Button disabled={this.props.auth.uid ? false : true} data-tooltip="You alredy read this book" data-position="bottom center" onClick={() => this.uncheckRead(theBook)} active icon>
         <Icon name="check" /> Read
       </Button>
     ) : (
-      <Button onClick={() => this.markAsRead(theBook)}>Mark as read</Button>
+      <Button disabled={this.props.auth.uid ? false : true} onClick={() => this.markAsRead(theBook)}>Mark as read</Button>
     );
   }
 
@@ -171,6 +179,7 @@ export default compose(
   firestoreConnect([{ collection: 'watchlist' }, { collection: 'readlist' }]),
   connect((state, props) => ({
     watchlistFstore: state.firestore.ordered.watchlist,
-    readlist: state.firestore.ordered.readlist
+    readlist: state.firestore.ordered.readlist,
+    auth: state.firebase.auth
   }))
 )(BookDetails);
