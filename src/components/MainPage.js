@@ -27,7 +27,7 @@ class MainPage extends Component {
     if (id) {
       this.setState({ loading: true });
       axios
-        .get(`http://bkworm.herokuapp.com/api/book/${id}`)
+        .get(`https://bkworm.herokuapp.com/api/book/${id}`)
         .then(({ data: { book } }) => {
           this.setState({ cBook: book });
           this.props.selectBook(book);
@@ -35,7 +35,7 @@ class MainPage extends Component {
         });
     }
     if (!this.props.books.length) {
-      axios.get('http://bkworm.herokuapp.com/api/books').then(res => {
+      axios.get('https://bkworm.herokuapp.com/api/books').then(res => {
         this.setState({ books: res.data.backendBooks });
         this.props.fetchBooks(res.data.backendBooks);
       });
@@ -60,7 +60,7 @@ class MainPage extends Component {
               this.setState({ loading: true });
               axios
                 .get(
-                  `http://bkworm.herokuapp.com/api/book/${
+                  `https://bkworm.herokuapp.com/api/book/${
                     book.best_book[0].id[0]['_']
                   }`
                 )

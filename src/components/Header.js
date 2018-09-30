@@ -25,7 +25,7 @@ class Header extends Component {
     self.setState({ isLoading: false });
     axios
       .get(
-        `http://bkworm.herokuapp.com/api/books/${this.state.searchTerm}`
+        `https://bkworm.herokuapp.com/api/books/${this.state.searchTerm}`
       )
       .then(res => {
             self.props.fetchBooks(
