@@ -15,7 +15,6 @@ export function selectBook(book) {
 }
 
 export function addToWatchList(book) {
-  console.log('huuuui')
   return {
     type: 'ADD_TO_WATCHLIST',
     payload: book
@@ -44,7 +43,6 @@ export function fetchBooks(searchResultBooks) {
             );
           })
         ).then(res => {
-          console.log('res', typeof res)
           res.forEach(el => {
             parseString(el.data, function(err, res) {
               const resBook = res.GoodreadsResponse.search[0].results[0].work;

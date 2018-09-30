@@ -10,7 +10,7 @@ class BookDetails extends Component {
   checkIfAddedInWatchlist(bookToBeChecked) {
     if (this.props.auth.uid && this.props.users) {
       return this.props.users.find(entry => {
-        if (entry.watchlist && entry.watchlist[bookToBeChecked.title[0]]) {
+        if (this.props.auth.email === entry.email && entry.watchlist && entry.watchlist[bookToBeChecked.title[0]]) {
           return (
             entry &&
             entry.watchlist[bookToBeChecked.title[0]].gid ===
@@ -27,7 +27,7 @@ class BookDetails extends Component {
       return this.props.users.find(entry => {
         let _check;
         Object.keys(entry.readlist).map((book, i, arr) => {
-          if (entry && bookToBeChecked.id[0] === entry.readlist[book].gid) {
+          if (this.props.auth.email === entry.email && entry && bookToBeChecked.id[0] === entry.readlist[book].gid) {
             return (_check = entry.readlist[book].added);
           }
           return false;
@@ -169,7 +169,7 @@ class BookDetails extends Component {
         <Grid.Row />
         <Grid.Row>
           <Grid.Column width={1} />
-          <Grid.Column width={5}>
+          <Grid.Column width={5} className="ibook">
             <Image src={theBook.image_url[0]} />
           </Grid.Column>
           <Grid.Column width={9}>

@@ -7,8 +7,6 @@ import { connect } from 'react-redux';
 
 class Basic extends React.Component {
   render() {
-    console.log('form ', this.props)
-
     const { firebase, auth, firestore } = this.props;
     return (
       <Card centered>
@@ -79,7 +77,16 @@ class Basic extends React.Component {
                     setErrors(transformMyApiErrors(errors));
                   }
                 )
-              : firebase.createUser(values);
+              : firebase.createUser(values).then(res => {
+                  firestore.add(
+                    { collection: 'users' },
+                    {
+                      email: res.email,
+                      watchlist: {},
+                      readlist: {}
+                    }
+                  );
+                });
           }}
           render={({
             values,

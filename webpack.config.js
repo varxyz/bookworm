@@ -81,7 +81,7 @@ module.exports = {
     }),
     // new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
-    new BundleAnalyzerPlugin()
+    // new BundleAnalyzerPlugin()
     // new OfflinePlugin(),
   ],
   devServer: {

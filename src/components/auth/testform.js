@@ -12,11 +12,9 @@ class testform extends React.Component {
     e.preventDefault();
     const  hui = this.props.firebase
     const {email, password} = this.state;
-    console.log(email, password)
     hui.login({email, password}).catch(err=>alert('invalid login'))
   }
   render() {
-    console.log('test', this.props.firebase.login.toString())
     return (
       <div>
         login

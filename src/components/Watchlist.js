@@ -23,31 +23,34 @@ class Watchlist extends Component {
         }
         return false;
       });
-      const watchlistArr = Object.keys(userEntry.watchlist).map(
-        i => userEntry.watchlist[i]
-      );
-      return (
-        <ul>
-          {watchlistArr.map(i => (
-            <Link
-              to=
-              {`/book/${i.gid}`}
-              key=
-              {i.gid}>
-            <li
-              className="booklist"
-              key={i.gid}
-              onClick={() => {
-                {/* this.setState({ cBook: book });
-                this.props.selectBook(book.best_book[0].id[0]['_']); */}
-              }}
-            >
-              <img src={i.cover} />
-            </li>
-            </Link>
-          ))}
-        </ul>
-      );
+      if(userEntry) {
+        const watchlistArr = Object.keys(userEntry.watchlist).map(
+          i => userEntry.watchlist[i]
+        );
+        return (
+          <ul>
+            {watchlistArr.map(i => (
+              <Link
+                to=
+                {`/book/${i.gid}`}
+                key=
+                {i.gid}>
+              <li
+                className="booklist"
+                key={i.gid}
+                onClick={() => {
+                  {/* this.setState({ cBook: book });
+                  this.props.selectBook(book.best_book[0].id[0]['_']); */}
+                }}
+              >
+                <img src={i.cover} />
+              </li>
+              </Link>
+            ))}
+          </ul>
+        );
+      }
+      return <h3>You have not yet added a book to your watchlist :(</h3>
     }
   }
 

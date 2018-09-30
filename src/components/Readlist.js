@@ -20,33 +20,30 @@ class Readlist extends Component {
         }
         return false;
       });
-      const readlistArr = Object.keys(userEntry.readlist).map(
-        i => userEntry.readlist[i]
-      );
-      return (
-        <ul>
-          {readlistArr.map(i => (
-            <Link
-              to=
-              {`/book/${i.gid}`}
-              key=
-              {i.gid}>
-              <li
-                className="booklist"
-                key={i.gid}
-                onClick={() => {
-                  {
-                    /* this.setState({ cBook: book });
-                this.props.selectBook(book.best_book[0].id[0]['_']); */
-                  }
-                }}
-              >
-                <img src={i.cover} />
-              </li>
-            </Link>
-          ))}
-        </ul>
-      );
+      if(userEntry) {
+
+        const readlistArr = Object.keys(userEntry.readlist).map(
+          i => userEntry.readlist[i]
+        );
+        return (
+          <ul>
+            {readlistArr.map(i => (
+              <Link
+                to=
+                {`/book/${i.gid}`}
+                key=
+                {i.gid}>
+                <li
+                  className="booklist"
+                >
+                  <img src={i.cover} />
+                </li>
+              </Link>
+            ))}
+          </ul>
+        );
+      }
+      return <h3>You have not read any books yet :(</h3>
     }
   }
 
