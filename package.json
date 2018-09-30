@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js",
+    "start": "node server/index.js",
     "dev": "webpack-dev-server",
     "prod": "NODE_ENV=production webpack -p",
     "deploy-gh": "npm run prod"
@@ -34,9 +34,9 @@
     "react-addons-test-utils": "^15.6.2",
     "style-loader": "^0.20.3",
     "url-loader": "^1.1.1",
-    "webpack": "^4.1.1",
+    "webpack": "4.19.1",
     "webpack-bundle-analyzer": "^2.13.1",
-    "webpack-cli": "^2.0.11",
+    "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.1"
   },
   "dependencies": {
@@ -47,7 +47,6 @@
     "firebase": "^4.12.0",
     "formik": "^1.1.1",
     "goodreads-api-node": "0.0.9",
-    "lodash": "^4.17.5",
     "lodash.debounce": "^4.0.8",
     "nodemon": "^1.18.4",
     "react": "^16.2.0",

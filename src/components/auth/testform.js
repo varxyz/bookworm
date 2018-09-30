@@ -1,6 +1,5 @@
 import React from 'react';
 import { Formik } from 'formik';
-import { Card, Button, Form } from 'semantic-ui-react';
 import { firebaseConnect } from 'react-redux-firebase';
 import { compose } from 'redux'
 import { connect } from 'react-redux'

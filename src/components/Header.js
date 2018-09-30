@@ -3,19 +3,21 @@ import { parseString } from 'xml2js';
 import { Input, Menu } from 'semantic-ui-react';
 import debounce from 'lodash.debounce';
 import axios from 'axios';
-import { firebaseConnect } from 'react-redux-firebase';
+import { firebaseConnect, firestoreConnect } from 'react-redux-firebase';
 import { connect } from 'react-redux';
 import { bindActionCreators, compose } from 'redux';
 import { NavLink, Link } from 'react-router-dom';
 import { fetchBooks, toggleLoading } from '../actions';
 
 class Header extends Component {
-  state = { searchTerm: '', activeItem: null, bookList2: [], isLoading: false };
-
-  handleItemClick = (e, { name }) => this.setState({ activeItem: name });
+  state = { searchTerm: '', bookList2: [], isLoading: false };
+  componentDidUpdate(prevProps, prevState, snapshot){
+    if(prevProps.books !== this.props.books && prevProps.books.length === 10) {
+      this.setState({bookList2: this.props.books})
+    }
+  }
   handleSignout = e => {
     e.preventDefault();
-    this.handleItemClick(e, { name });
     this.props.firebase.logout();
   };
   doSearch = debounce(() => {
@@ -23,46 +25,35 @@ class Header extends Component {
     self.setState({ isLoading: false });
     axios
       .get(
-        `https://cors-anywhere.herokuapp.com/https://www.goodreads.com/search.xml?key=uLcNEgljUTXWGSw7eahPw&q=${
-          this.state.searchTerm
-        }`
+        `http://localhost:5000/api/books/${this.state.searchTerm}`
       )
-      .then(res =>
-        parseString(res.data, function(err, res) {
-          // self.setState({ isLoading: false });
-
-          if (res.GoodreadsResponse.search[0].results[0].work) {
-            self.setState({
-              bookList2: self.state.bookList2.concat(
-                [],
-                res.GoodreadsResponse.search[0].results[0].work
-              )
-            });
+      .then(res => {
             self.props.fetchBooks(
-              res.GoodreadsResponse.search[0].results[0].work
+              res.data.searchRes
             );
-          }
-        })
-      )
+      })
       .then(() => this.props.toggleLoading(false));
-  }, 300);
+  }, 500);
 
   onInputChage = e => {
-    this.props.toggleLoading(true);
+    if(e.target.value) {
 
-    this.setState({ searchTerm: e.target.value });
-    this.setState({ isLoading: true });
-    this.doSearch();
+      this.setState({ searchTerm: e.target.value });
+      this.setState({ isLoading: true });
+      this.props.toggleLoading(true);
+
+      this.doSearch();
+    }
+    this.props.fetchBooks(this.state.bookList2)
     // this.setState({ isLoading: false });
   };
 
   render() {
     const { activeItem } = this.state;
-    return (
+    return  (
       <Menu>
         <Menu.Item
           active={activeItem === 'null'}
-          onClick={this.handleItemClick}
           as={Link}
           to="/"
         >
@@ -79,44 +70,37 @@ class Header extends Component {
             />
           </Menu.Item>
         </Menu.Menu>
-        {this.props.auth.uid ? (
+        {this.props.auth.uid  ? (
           <Menu.Menu position="right">
             <Menu.Item
               as={NavLink}
               to="/watchlist"
-              name="watchlist"
-              active={activeItem === 'watchlist'}
-              onClick={this.handleItemClick}
+              activeClassName="selected"
             >
               Watchlist
             </Menu.Item>
             <Menu.Item
               as={NavLink}
               to="/mybooks"
-              name="mybooks"
-              active={activeItem === 'mybooks'}
-              onClick={this.handleItemClick}
+              activeClassName="selected"
+
             >
               My Books
             </Menu.Item>
             <Menu.Item
               as={NavLink}
               to="/login"
-              name="login"
-              active={activeItem === 'logout'}
               onClick={this.handleSignout}
             >
               Logout
             </Menu.Item>
           </Menu.Menu>
         ) : (
-          <Menu.Menu position="right">
+          this.props.auth.isLoaded ?
+          (<Menu.Menu position="right">
             <Menu.Item
               as={NavLink}
               to="/login"
-              name="login"
-              active={activeItem === 'login'}
-              onClick={this.handleItemClick}
             >
               Log In
             </Menu.Item>
@@ -124,17 +108,14 @@ class Header extends Component {
             <Menu.Item
               as={NavLink}
               to="/signup"
-              name="signup"
-              name="signup"
-              active={activeItem === 'signup'}
-              onClick={this.handleItemClick}
+              activeClassName="selected"
             >
               Sign Up
             </Menu.Item>
-          </Menu.Menu>
+          </Menu.Menu>) : null
         )}
       </Menu>
-    );
+    )
   }
 }
 
@@ -143,7 +124,8 @@ function mapStateToProps(state) {
     books: state.books,
     currentBook: state.currentBook,
     loading: state.loading,
-    auth: state.firebase.auth
+    auth: state.firebase.auth,
+    users: state.firestore.ordered.users
   };
 }
 
@@ -153,5 +135,9 @@ function mapDispatchToProps(dispatch) {
 
 export default compose(
   firebaseConnect(),
-  connect(mapStateToProps, mapDispatchToProps)
+  firestoreConnect(),
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )
 )(Header);

@@ -6,9 +6,8 @@ import MyForm from "./MyForm";
 
 class Login extends Component {
   render() {
-    const {dispatch, staticContext, ...rest} = this.props
     return (
-          <MyForm {...rest} source='login'/>
+          <MyForm source='signup'/>
     );
   }
 }

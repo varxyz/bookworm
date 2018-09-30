@@ -3,68 +3,105 @@ import { compose } from 'redux';
 import { firestoreConnect } from 'react-redux-firebase';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import BookDetails from './BookDetails';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
+import BookDetails from './BookDetails';
 import { fetchBooks, selectBook, toggleLoading } from '../actions';
-import { Grid, Dimmer, Loader, Image, Segment } from 'semantic-ui-react';
-
-// const myCredentials = {
-//   key: 'uLcNEgljUTXWGSw7eahPw',
-//   secret: 'QOz6xMXwwjhX5jNpVTEo59xHbAonlxzmvhouO8e0'
-// };
+import { Grid, Loader } from 'semantic-ui-react';
 
 class MainPage extends Component {
-  state = { cBook: this.props.currentBook, loading: false, books: [] };
+  state = {
+    cBook: this.props.currentBook,
+    loading: false,
+    books: []
+  };
   constructor(props) {
     super(props);
   }
   componentDidMount() {
-    this.props.fetchBooks();
-    // axios.get('http://localhost:5000/api/books').then(res=>{console.log(res); return this.setState({books: res.data.backendBooks})})
+    const {
+      match: {
+        params: { id }
+      }
+    } = this.props;
+    if (id) {
+      this.setState({ loading: true });
+      axios
+        .get(`http://localhost:5000/api/book/${id}`)
+        .then(({ data: { book } }) => {
+          this.setState({ cBook: book });
+          this.props.selectBook(book);
+          this.setState({ loading: false });
+        });
+    }
+    if (!this.props.books.length) {
+      axios.get('http://localhost:5000/api/books').then(res => {
+        this.setState({ books: res.data.backendBooks });
+        this.props.fetchBooks(res.data.backendBooks);
+      });
+    }
   }
 
   renderLoader() {
     return <Loader active inline="centered" />;
   }
   renderContent() {
-    return this.props.books.map(book => {
+    const books = this.props.books.length ? this.props.books : this.state.books;
+
+    return books.map(book => {
       return (
-        <li
-          className="booklist"
+        <Link
+          to={`/book/${book.best_book[0].id[0]['_']}`}
           key={book.best_book[0].id[0]['_']}
-          onClick={() => {
-            this.setState({ cBook: book });
-            this.props.selectBook(book.best_book[0].id[0]['_']);
-          }}
         >
-          <img src={book.best_book[0].image_url[0]} />
-        </li>
+          <li
+            className="booklist"
+            onClick={e => {
+              this.setState({ loading: true });
+              axios
+                .get(
+                  `http://localhost:5000/api/book/${
+                    book.best_book[0].id[0]['_']
+                  }`
+                )
+                .then(({ data: { book } }) => {
+                  this.setState({ cBook: book });
+                  this.props.selectBook(book);
+                  this.setState({ loading: false });
+                });
+            }}
+          >
+            <img src={book.best_book[0].image_url[0]} />
+          </li>
+        </Link>
       );
     });
   }
 
   render() {
-    return this.props.books[0] ? (
+    return this.state.books[0] ||
+      (this.props.books[0] && !this.props.loading) ? (
       <Grid divided>
         <Grid.Row columns={2}>
           <Grid.Column>
             <ul>{this.renderContent()}</ul>
           </Grid.Column>
           <Grid.Column>
-            {!this.state.cBook ? (
+            {this.state.cBook && !this.state.loading ? (
               <BookDetails
                 book={this.props.currentBook}
                 addWatchList={this.addBookToWatchList}
               />
-            ) : this.props.currentBook &&
-            this.state.cBook &&
-            this.props.currentBook.title[0]  ? (
-              <BookDetails
-                book={this.props.currentBook}
-                addWatchList={this.addBookToWatchList}
-              />
-            ) : (
+            ) : this.state.loading ? (
               this.renderLoader()
+            ) : (
+              <h1
+                style={{
+                  marginTop: '.3em'
+                }}
+              >
+                &larr; Please select a book to explore
+              </h1>
             )}
           </Grid.Column>
         </Grid.Row>
@@ -85,12 +122,23 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { fetchBooks, selectBook, toggleLoading },
+    {
+      fetchBooks,
+      selectBook,
+      toggleLoading
+    },
     dispatch
   );
 }
 
 export default compose(
-  firestoreConnect([{ collection: 'watchlist' }, { collection: 'books' }]),
-  connect(mapStateToProps, mapDispatchToProps)
+  firestoreConnect([
+    {
+      collection: 'users'
+    }
+  ]),
+  connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )
 )(MainPage);

@@ -2,81 +2,163 @@ import { Grid, Icon, Image, Rating, Button } from 'semantic-ui-react';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { firestoreConnect } from 'react-redux-firebase';
+import { firestoreConnect, firebaseConnect } from 'react-redux-firebase';
 
 class BookDetails extends Component {
   state = { added: false };
 
   checkIfAddedInWatchlist(bookToBeChecked) {
-    // console.log(this.props)
-    if(this.props.auth.uid && this.props.watchlistFstore) {
-
-      return this.props.watchlistFstore.find(entry => {
-        return entry && entry.gid === bookToBeChecked.id[0];
+    if (this.props.auth.uid && this.props.users) {
+      return this.props.users.find(entry => {
+        if (entry.watchlist && entry.watchlist[bookToBeChecked.title[0]]) {
+          return (
+            entry &&
+            entry.watchlist[bookToBeChecked.title[0]].gid ===
+              bookToBeChecked.id[0]
+          );
+        }
+        return false;
       });
-    } return null
+    }
+    return null;
   }
   checkIfMarkedAsRead(bookToBeChecked) {
-    if(this.props.auth.uid && this.props.readlist) {
-
-    return this.props.readlist.find(entry => {
-      if (entry && entry.gid === bookToBeChecked.id[0]) {
-        return entry.added || false;
-      }
-    });
-  } return null
+    if (this.props.auth.uid && this.props.users) {
+      return this.props.users.find(entry => {
+        let _check;
+        Object.keys(entry.readlist).map((book, i, arr) => {
+          if (entry && bookToBeChecked.id[0] === entry.readlist[book].gid) {
+            return (_check = entry.readlist[book].added);
+          }
+          return false;
+        });
+        return _check;
+      });
+    }
+    return null;
   }
 
   addBooktoWatchlist(book) {
-    this.props.firestore.add({ collection: 'watchlist' }, { gid: book.id[0] });
+    this.props.users.map(i => {
+      if (i.email === this.props.auth.email) {
+        var m = i.watchlist;
+        this.props.firestore.update(
+          { collection: 'users', doc: i.id },
+          {
+            email: i.email,
+            watchlist: {
+              ...m,
+              [book.title[0]]: { gid: book.id[0], cover: book.image_url[0], added: !this.state.added }
+            }
+          }
+        );
+      }
+    });
+  }
+
+  deleteBookFromReadlist(book) {
+    const userEntry = this.props.users.find(entry => {
+      return this.props.auth.email === entry.email;
+    });
+    const readlist = userEntry.readlist;
+    const newList = Object.keys(readlist).reduce((acc, curr) => {
+      if (curr !== book.title[0]) {
+        acc[curr] = readlist[curr];
+      }
+      return acc;
+    }, {});
+    this.props.firestore.update(
+      { collection: 'users', doc: userEntry.id },
+      {
+        email: userEntry.email,
+        watchlist: userEntry.watchlist,
+        readlist: newList,
+      }
+    );
   }
 
   deleteBookFromWatchlist(book) {
-    return this.props.watchlistFstore.map(item => {
-      if (item.gid === book.id[0]) {
-        this.props.firestore.delete({ collection: 'watchlist', doc: item.id });
-      }
+    const userEntry = this.props.users.find(entry => {
+      return this.props.auth.email === entry.email;
     });
+    const watchlist = userEntry.watchlist;
+    const newList = Object.keys(watchlist).reduce((acc, curr) => {
+      if (curr !== book.title[0]) {
+        acc[curr] = watchlist[curr];
+      }
+      return acc;
+    }, {});
+    this.props.firestore.update(
+      { collection: 'users', doc: userEntry.id },
+      {
+        email: this.props.users[0].email,
+        readlist: userEntry.readlist,
+        watchlist: newList
+      }
+    );
   }
 
   markAsRead(book) {
-    this.props.firestore.add(
-      { collection: 'readlist' },
-      { gid: book.id[0], added: !this.state.added }
-    );
-    // return this.props.readlist.find(entry => {
-    //     this.setState({ added: !this.state.added });
-    //     this.props.firestore.add({ collection: 'readlist'}, { gid: book.id[0], added: !this.state.added });
-    // });
-  }
-
-  uncheckRead(book) {
-    return this.props.readlist.map(item => {
-      if (item.gid === book.id[0] && item.added) {
-        this.props.firestore.delete({ collection: 'readlist', doc: item.id });
-      }
+    const userEntry = this.props.users.find(entry => {
+      return this.props.auth.email === entry.email;
     });
+    if (userEntry.email === this.props.auth.email) {
+      const m = userEntry.readlist;
+      this.props.firestore.update(
+        { collection: 'users', doc: userEntry.id },
+        {
+          email: userEntry.email,
+          watchlist: userEntry.watchlist,
+          readlist: {
+            ...m,
+            [book.title[0]]: { gid: book.id[0], cover: book.image_url[0], added: !this.state.added }
+          }
+        }
+      );
+    }
   }
 
   renderWatchlistButton(theBook) {
-    // console.log(this.props.auth.uid)
     return this.checkIfAddedInWatchlist(theBook) ? (
-      <Button disabled={this.props.auth.uid ? false : true} data-tooltip="Remove this book from watchlist" onClick={() => this.deleteBookFromWatchlist(theBook)} icon>
+      <Button
+        disabled={this.props.auth.uid ? false : true}
+        data-tooltip="Remove this book from watchlist"
+        onClick={() => this.deleteBookFromWatchlist(theBook)}
+        icon
+        active
+      >
         <Icon name="bookmark" /> Remove
       </Button>
     ) : (
-      <Button disabled={this.props.auth.uid ? false : true} data-tooltip="Add this book to watchlist" onClick={() => this.addBooktoWatchlist(theBook)} icon>
+      <Button
+        disabled={this.props.auth.uid ? false : true}
+        data-tooltip="Add this book to watchlist"
+        onClick={() => this.addBooktoWatchlist(theBook)}
+        icon
+      >
         <Icon name="bookmark outline" /> Watchlist
       </Button>
     );
   }
   renderReadButton(theBook) {
     return this.checkIfMarkedAsRead(theBook) ? (
-      <Button disabled={this.props.auth.uid ? false : true} data-tooltip="You alredy read this book" data-position="bottom center" onClick={() => this.uncheckRead(theBook)} active icon>
+      <Button
+        disabled={this.props.auth.uid ? false : true}
+        data-tooltip="You already read this book"
+        data-position="bottom center"
+        onClick={() => this.deleteBookFromReadlist(theBook)}
+        active
+        icon
+      >
         <Icon name="check" /> Read
       </Button>
     ) : (
-      <Button disabled={this.props.auth.uid ? false : true} onClick={() => this.markAsRead(theBook)}>Mark as read</Button>
+      <Button
+        disabled={this.props.auth.uid ? false : true}
+        onClick={() => this.markAsRead(theBook)}
+      >
+        Mark as read
+      </Button>
     );
   }
 
@@ -165,21 +247,19 @@ class BookDetails extends Component {
   }
 
   render() {
-    return this.props.book ? (
-      this.renderbook()
-    ) : (
-      <h1 style={{ marginTop: '.3em' }}>
-        &larr; Please select a book to explore it
-      </h1>
-    );
+    return this.renderbook()
   }
 }
 
 export default compose(
-  firestoreConnect([{ collection: 'watchlist' }, { collection: 'readlist' }]),
-  connect((state, props) => ({
-    watchlistFstore: state.firestore.ordered.watchlist,
-    readlist: state.firestore.ordered.readlist,
-    auth: state.firebase.auth
-  }))
+  firebaseConnect(),
+  firestoreConnect([
+    { collection: 'users' }
+  ]),
+  connect((state, props) => {
+    return {
+      auth: state.firebase.auth,
+      users: state.firestore.ordered.users
+    };
+  })
 )(BookDetails);

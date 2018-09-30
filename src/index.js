@@ -10,10 +10,10 @@ import reducers from './reducers';
 import store from './store';
 // const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);
 // install();
-const store1 = createStore(
-  reducers,
-  applyMiddleware(thunk)
-);
+// const store1 = createStore(
+//   reducers,
+//   applyMiddleware(thunk)
+// );
 ReactDOM.render(
   <AppContainer>
     <Provider store={store}>

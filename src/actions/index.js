@@ -10,19 +10,12 @@ export function toggleLoading(bool) {
   }
 }
 
-export function selectBook(id) {
-  return dispatch => {
-    let book;
-    axios.get(`${corsLink}https://www.goodreads.com/book/show/${id}.xml?key=uLcNEgljUTXWGSw7eahPw`)
-      .then(({data}) => {
-        parseString(data, function(err, res) {
-          dispatch({ type: 'SELECT_BOOK', payload: res.GoodreadsResponse.book[0] });
-        })
-      })
-  }
+export function selectBook(book) {
+  return { type: 'SELECT_BOOK', payload: book }
 }
 
 export function addToWatchList(book) {
+  console.log('huuuui')
   return {
     type: 'ADD_TO_WATCHLIST',
     payload: book
@@ -47,10 +40,11 @@ export function fetchBooks(searchResultBooks) {
           books.map((book) => {
             let newBookTitle = book.title.replace(/#|_/g, '');
             return axios.get(
-              `${corsLink}https://www.goodreads.com/search.xml?key=uLcNEgljUTXWGSw7eahPw&q=${newBookTitle}`
+              `https://www.goodreads.com/search.xml?key=uLcNEgljUTXWGSw7eahPw&q=${newBookTitle}`
             );
           })
         ).then(res => {
+          console.log('res', typeof res)
           res.forEach(el => {
             parseString(el.data, function(err, res) {
               const resBook = res.GoodreadsResponse.search[0].results[0].work;

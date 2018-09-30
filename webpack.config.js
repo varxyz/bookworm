@@ -23,16 +23,15 @@ const cssProd = ExtractTextPlugin.extract({
   ]
 });
 const cssConfig = isProd ? cssProd : cssDev;
-
 module.exports = {
   entry: './src/index.js',
   output: {
-    path: path.resolve(__dirname, 'bookworm/dist'),
-    publicPath: '/bookworm/',
+    path: path.resolve(__dirname, 'dist'),
+    publicPath: '/',
     filename: 'bundle.js'
   },
   mode: prod,
-  devtool: 'eval',
+  // devtool: 'eval',
   module: {
     rules: [
       {
@@ -73,7 +72,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'Home',
-      template: 'bookworm/index.html'
+      template: 'src/index.html'
     }),
     new ExtractTextPlugin({
       filename: 'styles/[name].css',
@@ -82,22 +81,23 @@ module.exports = {
     }),
     // new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin(),
+    new BundleAnalyzerPlugin()
     // new OfflinePlugin(),
   ],
   devServer: {
-    // historyApiFallback: true,
-    host: '0.0.0.0',
+    historyApiFallback: true,
+    // host: '0.0.0.0',
     port: 8080,
     // disableHostCheck: true,
     hot: true,
-    contentBase: path.join(__dirname, '/bookworm/dist'),
+    contentBase: path.join(__dirname, 'dist'),
     compress: true,
     // noInfo: true,
-    open: true,
+    // open: true,
     overlay: {
       warnings: true,
       errors: true
     },
-    openPage: 'bookworm/'
+    openPage: '/'
   }
 };
