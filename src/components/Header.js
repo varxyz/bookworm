@@ -12,7 +12,7 @@ import { fetchBooks, toggleLoading } from '../actions';
 class Header extends Component {
   state = { searchTerm: '', bookList2: [], isLoading: false };
   componentDidUpdate(prevProps, prevState, snapshot){
-    if(prevProps.books !== this.props.books && prevProps.books.length === 10) {
+    if(prevProps.books !== this.props.books && this.props.books.length === 10) {
       this.setState({bookList2: this.props.books})
     }
   }
@@ -36,16 +36,11 @@ class Header extends Component {
   }, 500);
 
   onInputChage = e => {
-    if(e.target.value) {
-
       this.setState({ searchTerm: e.target.value });
       this.setState({ isLoading: true });
       this.props.toggleLoading(true);
-
       this.doSearch();
-    }
-    this.props.fetchBooks(this.state.bookList2)
-    // this.setState({ isLoading: false });
+      e.target.value ? null : this.props.fetchBooks(this.state.bookList2)
   };
 
   render() {
@@ -55,6 +50,11 @@ class Header extends Component {
         <Menu.Item
           active={activeItem === 'null'}
           as={Link}
+          onClick={() => {
+            this.setState({searchTerm: ''})
+            {/* console.log(this.state.searchTerm) */}
+            this.props.fetchBooks(this.state.bookList2)}
+          }
           to="/"
         >
           <h2>bookworm</h2>
@@ -63,6 +63,7 @@ class Header extends Component {
           <Menu.Item>
             <Input
               onChange={this.onInputChage}
+              value={this.state.searchTerm}
               size="big"
               icon="search"
               placeholder="Search..."

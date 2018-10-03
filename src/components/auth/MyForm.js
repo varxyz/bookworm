@@ -140,7 +140,6 @@ export default compose(
   connect((state, props) => {
     return {
       users: state.firestore.ordered.users,
-      books: state.books
     };
   })
 )(Basic);

@@ -8,31 +8,18 @@ class BookDetails extends Component {
   state = { added: false };
 
   checkIfAddedInWatchlist(bookToBeChecked) {
-    if (this.props.auth.uid && this.props.users) {
-      return this.props.users.find(entry => {
-        if (this.props.auth.email === entry.email && entry.watchlist && entry.watchlist[bookToBeChecked.title[0]]) {
-          return (
-            entry &&
-            entry.watchlist[bookToBeChecked.title[0]].gid ===
-              bookToBeChecked.id[0]
-          );
-        }
-        return false;
+    if (this.props.auth.uid && this.props.usersData) {
+      return Object.keys(this.props.usersData).find(entry => {
+        return   this.props.usersData[entry].watchlist[bookToBeChecked.title[0]] && this.props.usersData[entry].watchlist[bookToBeChecked.title[0]].gid === bookToBeChecked.id[0]
       });
     }
     return null;
   }
+
   checkIfMarkedAsRead(bookToBeChecked) {
-    if (this.props.auth.uid && this.props.users) {
-      return this.props.users.find(entry => {
-        let _check;
-        Object.keys(entry.readlist).map((book, i, arr) => {
-          if (this.props.auth.email === entry.email && entry && bookToBeChecked.id[0] === entry.readlist[book].gid) {
-            return (_check = entry.readlist[book].added);
-          }
-          return false;
-        });
-        return _check;
+    if (this.props.auth.uid && this.props.usersData) {
+      return Object.keys(this.props.usersData).find(entry => {
+        return   this.props.usersData[entry].readlist[bookToBeChecked.title[0]] && this.props.usersData[entry].readlist[bookToBeChecked.title[0]].gid === bookToBeChecked.id[0]
       });
     }
     return null;
@@ -45,7 +32,6 @@ class BookDetails extends Component {
         this.props.firestore.update(
           { collection: 'users', doc: i.id },
           {
-            email: i.email,
             watchlist: {
               ...m,
               [book.title[0]]: { gid: book.id[0], cover: book.image_url[0], added: !this.state.added }
@@ -57,65 +43,62 @@ class BookDetails extends Component {
   }
 
   deleteBookFromReadlist(book) {
-    const userEntry = this.props.users.find(entry => {
-      return this.props.auth.email === entry.email;
-    });
-    const readlist = userEntry.readlist;
-    const newList = Object.keys(readlist).reduce((acc, curr) => {
-      if (curr !== book.title[0]) {
-        acc[curr] = readlist[curr];
+    Object.keys(this.props.usersData).map(i => {
+      if (this.props.usersData[i].email === this.props.auth.email) {
+        var readlist = this.props.usersData[i].readlist;
+        const newList = Object.keys(readlist).reduce((acc, curr) => {
+          if (curr !== book.title[0]) {
+            acc[curr] = readlist[curr];
+          }
+          return acc;
+        }, {});
+        this.props.firestore.update(
+          { collection: 'users', doc: i },
+          {
+            readlist: newList
+          }
+        );
       }
-      return acc;
-    }, {});
-    this.props.firestore.update(
-      { collection: 'users', doc: userEntry.id },
-      {
-        email: userEntry.email,
-        watchlist: userEntry.watchlist,
-        readlist: newList,
-      }
-    );
+    })
   }
 
   deleteBookFromWatchlist(book) {
-    const userEntry = this.props.users.find(entry => {
-      return this.props.auth.email === entry.email;
-    });
-    const watchlist = userEntry.watchlist;
-    const newList = Object.keys(watchlist).reduce((acc, curr) => {
-      if (curr !== book.title[0]) {
-        acc[curr] = watchlist[curr];
+    Object.keys(this.props.usersData).map(i => {
+      if (this.props.usersData[i].email === this.props.auth.email) {
+        var watchlist = this.props.usersData[i].watchlist;
+        const newList = Object.keys(watchlist).reduce((acc, curr) => {
+          if (curr !== book.title[0]) {
+            acc[curr] = watchlist[curr];
+          }
+          return acc;
+        }, {});
+        this.props.firestore.update(
+          { collection: 'users', doc: i },
+          {
+            watchlist: newList
+          }
+        );
       }
-      return acc;
-    }, {});
-    this.props.firestore.update(
-      { collection: 'users', doc: userEntry.id },
-      {
-        email: this.props.users[0].email,
-        readlist: userEntry.readlist,
-        watchlist: newList
-      }
-    );
+    })
   }
 
   markAsRead(book) {
-    const userEntry = this.props.users.find(entry => {
-      return this.props.auth.email === entry.email;
-    });
-    if (userEntry.email === this.props.auth.email) {
-      const m = userEntry.readlist;
-      this.props.firestore.update(
-        { collection: 'users', doc: userEntry.id },
-        {
-          email: userEntry.email,
-          watchlist: userEntry.watchlist,
-          readlist: {
-            ...m,
-            [book.title[0]]: { gid: book.id[0], cover: book.image_url[0], added: !this.state.added }
+    this.props.users.map(i => {
+      if (i.email === this.props.auth.email) {
+        var m = i.readlist;
+        this.props.firestore.update(
+          { collection: 'users', doc: i.id },
+          {
+            email: i.email,
+            watchlist: i.watchlist,
+            readlist: {
+              ...m,
+              [book.title[0]]: { gid: book.id[0], cover: book.image_url[0], added: !this.state.added }
+            }
           }
-        }
-      );
-    }
+        );
+      }
+    });
   }
 
   renderWatchlistButton(theBook) {
@@ -259,7 +242,8 @@ export default compose(
   connect((state, props) => {
     return {
       auth: state.firebase.auth,
-      users: state.firestore.ordered.users
+      users: state.firestore.ordered.users,
+      usersData: state.firestore.data.users
     };
   })
 )(BookDetails);

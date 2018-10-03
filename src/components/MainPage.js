@@ -12,7 +12,7 @@ import { Grid, Loader } from 'semantic-ui-react';
 class MainPage extends Component {
   state = {
     cBook: this.props.currentBook,
-    loading: false,
+    loading: this.props.loading,
     books: []
   };
   constructor(props) {
@@ -79,9 +79,9 @@ class MainPage extends Component {
   }
 
   render() {
-    return this.state.books[0] ||
-      (this.props.books[0] && !this.props.loading) ? (
+    return (this.props.books[0] && !this.props.loading) ? (
       <Grid divided>
+        <h4>Welcome {this.props.auth.email}</h4>
         <Grid.Row columns={2}>
           <Grid.Column>
             <ul>{this.renderContent()}</ul>
@@ -116,7 +116,8 @@ function mapStateToProps(state) {
   return {
     books: state.books,
     currentBook: state.currentBook,
-    loading: state.loading
+    loading: state.loading,
+    auth: state.firebase.auth
   };
 }
 
