@@ -52,7 +52,6 @@ class Header extends Component {
           as={Link}
           onClick={() => {
             this.setState({searchTerm: ''})
-            {/* console.log(this.state.searchTerm) */}
             this.props.fetchBooks(this.state.bookList2)}
           }
           to="/"

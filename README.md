@@ -1,14 +1,17 @@
-# ReactReduxHMR
+# Bookworm
+Hobby app built for managing favorite books and tracking your reading progress.
 
-This is a project starter that supports HMR for building scalable react and redux apps.
+Project built using React, Redux using Firebase. It makes use of a Nodejs server for fetching API data from NYT (for top current books) and subsequent API calls from Goodreads API. Authentication is handled with Firebase.
 
-[DEMO](https://varxyz.github.io/ReactReduxHMR/)
+The project is hosted on Heroku because it allows a nodejs env that the project uses in background. The switch to Heroku hosting was made due to the fact that Github Pages doesn't allow front-end routing. The version of this project running in GH Pages (implemented using some hacky solutions) can be viewed on the `master` branch
+
+[DEMO](https://bkworm.herokuapp.com)
 
 ### Getting Started
 
 ```
-> git clone git@github.com:varxyz/ReactReduxHMR.git
-> cd ReactReduxHMR
+> git clone git@github.com:varxyz/bookworm.git
+> cd bookworm
 > yarn
-> yarn start
+> yarn dev
 ```
