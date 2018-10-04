@@ -5,6 +5,9 @@ Project built using React, Redux using Firebase. It makes use of a Nodejs server
 
 GH Pages version can be checked on `gh-pages` branch and the server-side routing version -- on `heroku` branch.
 
+### Todo
+- [ ] Make the app responsive. (though Semantic-UI is not so straightforward in this case)
+
 [DEMO](https://varxyz.github.io/bookworm/)
 
 ### Getting Started
